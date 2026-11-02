@@ -1,0 +1,18 @@
+{
+  "name": "دفتر الشاحنة",
+  "short_name": "دفتر الشاحنة",
+  "description": "تتبع رحلات ومصاريف وصيانة الشاحنات",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "background_color": "#1e2427",
+  "theme_color": "#1e2427",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

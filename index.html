@@ -51,6 +51,8 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 .empty{color:var(--mut);padding:12px 0}
 .foot{display:flex;gap:8px;margin-top:12px}
 .foot button{flex:1;background:none;border:1px solid var(--line);color:var(--mut);border-radius:10px;padding:8px;font:inherit;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--line);color:var(--tx);padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1}.toast.ok{color:var(--inc)}.toast.bad{color:var(--exp)}
 </style>
 </head>
 <body>
@@ -63,12 +65,14 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
   <button class="go" id="addTruck" data-i="add"></button>
 </div>
 
+<div class="trucks"><label for="currency" data-i="curl" style="align-self:center"></label><select id="currency"></select></div>
+
 <section class="hero">
   <small data-i="seasonNet"></small>
   <div class="big" id="seasonNet"></div>
   <div class="bar"><i id="prog"></i></div>
   <small id="progTxt"></small>
-  <div class="goal"><label for="goal" data-i="goal"></label><input id="goal" type="number" inputmode="numeric" min="0"></div>
+  <div class="goal"><label for="goal" data-i="goal"></label><input id="goal" step="any" type="number" inputmode="numeric" min="0"></div>
 </section>
 
 <div class="tabs" id="tabs">
@@ -81,22 +85,22 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 </div>
 
 <h2 data-i="addTrips"></h2>
-<form id="fTrip">
+<form id="fTrip" novalidate>
   <div class="row">
     <label><span data-i="date"></span><input type="date" id="tDate" required></label>
     <label><span data-i="count"></span><input type="number" id="tCount" value="1" min="1" required></label>
   </div>
-  <label><span data-i="price"></span><input type="number" id="tPrice" value="800" min="0" required></label>
+  <label><span data-i="price"></span><input type="number" step="any" id="tPrice" value="800" min="0" required></label>
   <button class="go" type="submit" data-i="save"></button>
 </form>
 
 <h2 data-i="addExp"></h2>
-<form id="fExp">
+<form id="fExp" novalidate>
   <div class="row">
     <label><span data-i="date"></span><input type="date" id="eDate" required></label>
     <label><span data-i="type"></span><select id="eType"></select></label>
   </div>
-  <label><span data-i="amount"></span><input type="number" id="eAmt" value="200" min="0" required></label>
+  <label><span data-i="amount"></span><input type="number" step="any" id="eAmt" value="200" min="0" required></label>
   <button class="go" type="submit" data-i="save"></button>
 </form>
 
@@ -119,18 +123,21 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
   <button id="reset" data-i="reset"></button>
 </div>
 </main>
+<div id="msg" class="toast" role="status" aria-live="polite"></div>
 
 <script>
 (function(){
 var KEY='truck-tracker-v2',OLD='truck-tracker-v1',period='day';
 var D={
-ar:{title:'دفتر الشاحنة',seasonNet:'صافي الموسم حتى اليوم',goal:'هدفك للعودة (د.ل)',noGoal:'اكتب هدفك لتشوف النسبة',goalTxt:'% من الهدف، باقي ',day:'اليوم',month:'الشهر',season:'الموسم',inc:'الدخل',exp:'المصاريف',netl:'الصافي',addTrips:'سجّل رحلات',date:'التاريخ',count:'عدد الرحلات',price:'أجرة الرحلة (د.ل)',save:'حفظ',addExp:'سجّل مصروف',type:'النوع',amount:'المبلغ (د.ل)',maint:'تذكير الصيانة',mName:'الاسم',every:'كل كم يوم',last:'آخر مرة',addMaint:'إضافة تذكير',done:'تم اليوم',inn:'باقي ',late:'متأخر ',days:' يوم',recent:'آخر العمليات',none:'ما فيه عمليات بعد. سجّل أول رحلة.',noM:'ما فيه تذكيرات. أضف تغيير الزيت مثلاً.',copy:'نسخ الملخص',copied:'تم النسخ',reset:'مسح بيانات هذه الشاحنة',confirm:'تمسح بيانات هذه الشاحنة؟',add:'إضافة شاحنة',nt:'اسم شاحنة جديدة',trip:' رحلة × ',del:'حذف',t_fuel:'بنزين',t_food:'أكل وشرب',t_oil:'زيت',t_tires:'عجلات',t_repair:'عطل وإصلاح',t_other:'أخرى',def:'شاحنتي',oil:'تغيير الزيت',sum:'دخل: ',sum2:' | مصاريف: ',sum3:' | صافي: ',cur:' د.ل'},
-fr:{title:'Carnet du camion',seasonNet:'Net de la saison à ce jour',goal:'Objectif pour rentrer (LYD)',noGoal:'Entrez votre objectif',goalTxt:'% de l’objectif, reste ',day:'Jour',month:'Mois',season:'Saison',inc:'Revenus',exp:'Dépenses',netl:'Net',addTrips:'Ajouter des trajets',date:'Date',count:'Nombre de trajets',price:'Prix du trajet (LYD)',save:'Enregistrer',addExp:'Ajouter une dépense',type:'Type',amount:'Montant (LYD)',maint:'Rappels d’entretien',mName:'Nom',every:'Tous les (jours)',last:'Dernière fois',addMaint:'Ajouter un rappel',done:'Fait aujourd’hui',inn:'Dans ',late:'En retard de ',days:' j',recent:'Dernières opérations',none:'Aucune opération. Ajoutez un premier trajet.',noM:'Aucun rappel. Ajoutez la vidange par exemple.',copy:'Copier le résumé',copied:'Copié',reset:'Effacer les données de ce camion',confirm:'Effacer les données de ce camion ?',add:'Ajouter un camion',nt:'Nom du nouveau camion',trip:' trajets × ',del:'Supprimer',t_fuel:'Carburant',t_food:'Repas',t_oil:'Huile',t_tires:'Pneus',t_repair:'Panne et réparation',t_other:'Autre',def:'Mon camion',oil:'Vidange',sum:'Revenus : ',sum2:' | Dépenses : ',sum3:' | Net : ',cur:' LYD'}
+ar:{title:'دفتر الشاحنة',seasonNet:'صافي الموسم حتى اليوم',goal:'هدفك للعودة',noGoal:'اكتب هدفك لتشوف النسبة',goalTxt:'% من الهدف، باقي ',day:'اليوم',month:'الشهر',season:'الموسم',inc:'الدخل',exp:'المصاريف',netl:'الصافي',addTrips:'سجّل رحلات',date:'التاريخ',count:'عدد الرحلات',price:'أجرة الرحلة',save:'حفظ',addExp:'سجّل مصروف',type:'النوع',amount:'المبلغ',maint:'تذكير الصيانة',mName:'الاسم',every:'كل كم يوم',last:'آخر مرة',addMaint:'إضافة تذكير',done:'تم اليوم',inn:'باقي ',late:'متأخر ',days:' يوم',recent:'آخر العمليات',none:'ما فيه عمليات بعد. سجّل أول رحلة.',noM:'ما فيه تذكيرات. أضف تغيير الزيت مثلاً.',copy:'نسخ الملخص',copied:'تم النسخ',reset:'مسح بيانات هذه الشاحنة',confirm:'تمسح بيانات هذه الشاحنة؟',add:'إضافة شاحنة',nt:'اسم شاحنة جديدة',trip:' رحلة × ',del:'حذف',t_fuel:'ديزل',t_food:'أكل وشرب',t_oil:'زيت',t_tires:'عجلات',t_repair:'عطل وإصلاح',t_other:'أخرى',def:'شاحنتي',oil:'تغيير الزيت',sum:'دخل: ',sum2:' | مصاريف: ',sum3:' | صافي: ',curl:'العملة',m_ok:'تم الحفظ ✓',m_bad:'تأكد من التاريخ والأرقام'},
+fr:{title:'Carnet du camion',seasonNet:'Net de la saison à ce jour',goal:'Objectif pour rentrer',noGoal:'Entrez votre objectif',goalTxt:'% de l’objectif, reste ',day:'Jour',month:'Mois',season:'Saison',inc:'Revenus',exp:'Dépenses',netl:'Net',addTrips:'Ajouter des trajets',date:'Date',count:'Nombre de trajets',price:'Prix du trajet',save:'Enregistrer',addExp:'Ajouter une dépense',type:'Type',amount:'Montant',maint:'Rappels d’entretien',mName:'Nom',every:'Tous les (jours)',last:'Dernière fois',addMaint:'Ajouter un rappel',done:'Fait aujourd’hui',inn:'Dans ',late:'En retard de ',days:' j',recent:'Dernières opérations',none:'Aucune opération. Ajoutez un premier trajet.',noM:'Aucun rappel. Ajoutez la vidange par exemple.',copy:'Copier le résumé',copied:'Copié',reset:'Effacer les données de ce camion',confirm:'Effacer les données de ce camion ?',add:'Ajouter un camion',nt:'Nom du nouveau camion',trip:' trajets × ',del:'Supprimer',t_fuel:'Gasoil',t_food:'Repas',t_oil:'Huile',t_tires:'Pneus',t_repair:'Panne et réparation',t_other:'Autre',def:'Mon camion',oil:'Vidange',sum:'Revenus : ',sum2:' | Dépenses : ',sum3:' | Net : ',curl:'Devise',m_ok:'Enregistré ✓',m_bad:'Vérifiez la date et les nombres'}
 };
+var CURS={LYD:{ar:'دينار ليبي',s:{ar:'د.ل',fr:'LYD'}},XAF:{ar:'فرنك سيفا (تشاد)',s:{ar:'فرنك سيفا',fr:'FCFA'}},USD:{ar:'دولار',s:{ar:'$',fr:'USD'}},EUR:{ar:'يورو',s:{ar:'€',fr:'EUR'}},EGP:{ar:'جنيه مصري',s:{ar:'ج.م',fr:'EGP'}},SDG:{ar:'جنيه سوداني',s:{ar:'ج.س',fr:'SDG'}},NGN:{ar:'نايرا',s:{ar:'₦',fr:'NGN'}},DZD:{ar:'دينار جزائري',s:{ar:'د.ج',fr:'DZD'}},TND:{ar:'دينار تونسي',s:{ar:'د.ت',fr:'TND'}}};
 var TYPES=['fuel','food','oil','tires','repair','other'],OLDMAP={'بنزين':'fuel','أكل وشرب':'food','زيت':'oil','عجلات':'tires','عطل وإصلاح':'repair','أخرى':'other'};
 var S={lang:'ar',goal:0,trucks:[],cur:null,entries:[],maint:[]};
 function $(i){return document.getElementById(i);}
-function T(k){return D[S.lang][k]||k;}
+function curCode(){var t=S.trucks.filter(function(x){return x.id===S.cur;})[0];return (t&&CURS[t.currency])?t.currency:'LYD';}
+function T(k){if(k==='cur')return ' '+CURS[curCode()].s[S.lang];return D[S.lang][k]||k;}
 function fmt(n){return Math.round(n).toLocaleString('en-US');}
 function pad(n){return String(n).padStart(2,'0');}
 function today(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -147,6 +154,7 @@ function mine(){return S.entries.filter(function(e){return e.truck===S.cur;});}
 function inPeriod(e){var t=today();return period==='season'||(period==='day'?e.date===t:e.date.slice(0,7)===t.slice(0,7));}
 function dayNum(s){return Math.round(new Date(s+'T00:00:00').getTime()/86400000);}
 function tname(t){return t.name||T('def');}
+var tt;function toast(k){var m=$('msg');m.textContent=T('m_'+k);m.className='toast show '+k;clearTimeout(tt);tt=setTimeout(function(){m.className='toast';},2200);}
 function mk(tag,txt,cls){var e=document.createElement(tag);if(txt!=null)e.textContent=txt;if(cls)e.className=cls;return e;}
 
 function render(){
@@ -157,6 +165,7 @@ function render(){
   document.title=T('title');
   var sel=$('truck');sel.innerHTML='';
   S.trucks.forEach(function(t){var o=mk('option',tname(t));o.value=t.id;if(t.id===S.cur)o.selected=true;sel.appendChild(o);});
+  var cs=$('currency');cs.innerHTML='';Object.keys(CURS).forEach(function(k){var o=mk('option',S.lang==='ar'?CURS[k].ar+' ('+CURS[k].s.ar+')':CURS[k].s.fr);o.value=k;if(k===curCode())o.selected=true;cs.appendChild(o);});
   var et=$('eType'),cv=et.value;et.innerHTML='';
   TYPES.forEach(function(k){var o=mk('option',T('t_'+k));o.value=k;et.appendChild(o);});if(cv)et.value=cv;
   if(!$('mName').value)$('mName').value=T('oil');
@@ -185,7 +194,7 @@ function render(){
   var sorted=es.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;}).slice(0,30);
   if(!sorted.length)ul.appendChild(mk('li',T('none'),'empty'));
   sorted.forEach(function(e){
-    var li=mk('li'),d=mk('div'),b=mk('b',e.kind==='trip'?e.count+T('trip')+fmt(e.price):T('t_'+e.type)),sm=mk('small',e.date);
+    var li=mk('li'),d=mk('div'),b=mk('b',e.kind==='trip'?e.count+T('trip')+fmt(e.price)+T('cur'):T('t_'+e.type)),sm=mk('small',e.date);
     d.appendChild(b);d.appendChild(sm);
     var a=mk('span',(e.kind==='trip'?'+':'-')+fmt(val(e)),e.kind==='trip'?'inc':'exp');
     var x=mk('button','×');x.setAttribute('aria-label',T('del'));
@@ -198,9 +207,10 @@ $('tDate').value=$('eDate').value=$('mLast').value=today();
 $('lang').onclick=function(){S.lang=S.lang==='ar'?'fr':'ar';$('mName').value='';save();render();};
 $('truck').onchange=function(){S.cur=Number(this.value);save();render();};
 $('addTruck').onclick=function(){var n=$('newTruck').value.trim();if(!n)return;var id=uid();S.trucks.push({id:id,name:n});S.cur=id;$('newTruck').value='';save();render();};
-$('fTrip').onsubmit=function(ev){ev.preventDefault();S.entries.push({id:uid(),truck:S.cur,kind:'trip',date:$('tDate').value,count:Number($('tCount').value),price:Number($('tPrice').value)});$('tCount').value=1;save();render();};
-$('fExp').onsubmit=function(ev){ev.preventDefault();S.entries.push({id:uid(),truck:S.cur,kind:'exp',date:$('eDate').value,type:$('eType').value,amount:Number($('eAmt').value)});save();render();};
+$('fTrip').onsubmit=function(ev){ev.preventDefault();if(!$('tDate').value||!(Number($('tCount').value)>=1)||$('tPrice').value===''||!(Number($('tPrice').value)>=0)){toast('bad');return;}S.entries.push({id:uid(),truck:S.cur,kind:'trip',date:$('tDate').value,count:Number($('tCount').value),price:Number($('tPrice').value)});$('tCount').value=1;save();render();toast('ok');};
+$('fExp').onsubmit=function(ev){ev.preventDefault();if(!$('eDate').value||$('eAmt').value===''||!(Number($('eAmt').value)>=0)){toast('bad');return;}S.entries.push({id:uid(),truck:S.cur,kind:'exp',date:$('eDate').value,type:$('eType').value,amount:Number($('eAmt').value)});save();render();toast('ok');};
 $('fMaint').onsubmit=function(ev){ev.preventDefault();S.maint.push({id:uid(),truck:S.cur,name:$('mName').value.trim(),days:Number($('mDays').value),last:$('mLast').value});$('mName').value='';save();render();};
+$('currency').onchange=function(){var c=this.value;S.trucks.forEach(function(t){if(t.id===S.cur)t.currency=c;});save();render();};
 $('goal').onchange=function(){S.goal=Number($('goal').value)||0;save();render();};
 $('tabs').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;period=b.dataset.p;Array.prototype.forEach.call(this.children,function(c){c.classList.toggle('on',c===b);});render();};
 $('reset').onclick=function(){if(confirm(T('confirm'))){S.entries=S.entries.filter(function(e){return e.truck!==S.cur;});S.maint=S.maint.filter(function(m){return m.truck!==S.cur;});save();render();}};

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" translate="no">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google" content="notranslate">
 <title>دفتر الشاحنة</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#1e2427">
@@ -15,9 +16,10 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--tx);font-family:'Cairo','DejaVu Sans',Tahoma,sans-serif;font-size:16px;line-height:1.6}
-main{max-width:520px;margin:0 auto;padding:16px}
+main{max-width:520px;margin:0 auto;padding:16px 16px 32px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 h1{font-size:20px;margin:4px 0}
+.ver-badge{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-inline-start:6px;vertical-align:middle}
 .lang{background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:4px 10px;font:inherit;cursor:pointer}
 .trucks{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
 .trucks select{flex:1;min-width:120px}
@@ -26,7 +28,7 @@ h1{font-size:20px;margin:4px 0}
 .hero .big{font-size:38px;font-weight:700;color:var(--net);line-height:1.2}
 .hero small{color:var(--mut)}
 .bar{height:10px;background:var(--bg);border-radius:6px;margin:10px 0 4px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--inc);width:0}
+.bar i{display:block;height:100%;background:var(--inc);width:0;transition:width .25s ease}
 .goal{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:14px;color:var(--mut)}
 .goal input{width:110px}
 .tabs{display:flex;gap:6px;margin:16px 0 8px}
@@ -37,10 +39,21 @@ h1{font-size:20px;margin:4px 0}
 .sum b{display:block;font-size:18px}.sum span{font-size:13px;color:var(--mut)}
 .stat{display:block;margin-top:6px;font-size:13px;color:var(--mut);min-height:1.6em}
 .inc{color:var(--inc)}.exp{color:var(--exp)}.net{color:var(--net)}
+
+/* الملخص المالي الذكي */
+.smart-box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;display:grid;gap:6px}
+.smart-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:6px}
+.smart-row{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.smart-res{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-top:2px;font-weight:700;font-size:15px;border:1px solid var(--line);background:var(--bg)}
+.smart-res.profit{border-color:var(--inc);color:var(--inc)}
+.smart-res.loss{border-color:var(--exp);color:var(--exp)}
+.smart-res.even{border-color:var(--net);color:var(--net)}
+
 h2{font-size:16px;margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 form{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
 label{font-size:13px;color:var(--mut);display:grid;gap:2px}
 input,select{background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;width:100%}
+input[type=date]{direction:ltr}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .go{background:var(--btn);color:#fff;border:0;border-radius:10px;padding:10px;font:inherit;font-weight:600;cursor:pointer;width:auto}
 :focus-visible{outline:2px solid var(--net);outline-offset:2px}
@@ -51,29 +64,69 @@ li button{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;
 li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 .warn{color:var(--net)}.late{color:var(--exp)}
 .empty{color:var(--mut);padding:12px 0}
-.foot{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.foot button{flex:1 1 140px;background:none;border:1px solid var(--line);color:var(--mut);border-radius:10px;padding:8px;font:inherit;cursor:pointer}
+
+/* فلاتر وجدول آخر العمليات */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.f-btns{display:flex;gap:4px;flex:1 1 220px}
+.f-btns button{flex:1;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--mut);font:inherit;font-size:13px;cursor:pointer}
+.f-btns button.on{background:var(--btn);color:#fff;border-color:var(--btn)}
+.f-date{display:flex;gap:4px;align-items:center;flex:1 1 150px}
+.f-date input[type=date]{padding:5px 8px;font-size:13px}
+.f-clr{background:none;border:1px solid var(--line);color:var(--mut);border-radius:8px;padding:5px 8px;font:inherit;font-size:12px;cursor:pointer}
+.f-clr[hidden]{display:none}
+.tbl-wrap{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ops-tbl{width:100%;border-collapse:collapse;font-size:13px;text-align:start}
+.ops-tbl th,.ops-tbl td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.ops-tbl th{color:var(--mut);font-weight:600;font-size:12px;white-space:nowrap;background:rgba(0,0,0,.12)}
+.ops-tbl tr:last-child td{border-bottom:none}
+.ops-tbl td.c-date{white-space:nowrap;font-size:12px;color:var(--mut);direction:ltr;text-align:start}
+.ops-tbl td.c-desc b{display:block;font-size:13px;font-weight:600;color:var(--tx)}
+.ops-tbl td.c-desc small{display:block;font-size:11px;color:var(--mut);line-height:1.35}
+.ops-tbl td.c-type{white-space:nowrap}
+.badge{display:inline-block;padding:2px 6px;border-radius:6px;font-size:11px;font-weight:600}
+.badge.b-inc{background:rgba(143,208,192,.14);color:var(--inc);border:1px solid rgba(143,208,192,.35)}
+.badge.b-exp{background:rgba(217,160,160,.14);color:var(--exp);border:1px solid rgba(217,160,160,.35)}
+.ops-tbl td.c-amt{white-space:nowrap;font-weight:700;font-size:13px}
+.ops-tbl td.c-act{text-align:center;width:34px}
+.del-op{background:none;border:1px solid transparent;color:var(--mut);border-radius:6px;padding:2px 7px;font-size:16px;line-height:1.2;cursor:pointer}
+.del-op:hover,.del-op:focus-visible{color:var(--exp);border-color:var(--line)}
+.tbl-empty{padding:16px;text-align:center;color:var(--mut);font-size:14px}
+
+/* زر وقائمة الإعدادات السفلية */
+.settings-wrap{position:relative;margin-top:18px;display:flex;flex-direction:column;align-items:flex-start}
+.set-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}
+.set-btn:hover{border-color:var(--net)}
+.set-menu{margin-top:8px;width:100%;max-width:270px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;display:grid;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.28);z-index:15}
+.set-menu[hidden]{display:none}
+.set-menu button{width:100%;text-align:start;background:none;border:0;color:var(--tx);padding:9px 10px;border-radius:8px;font:inherit;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.set-menu button:hover,.set-menu button:focus-visible{background:var(--bg)}
+.set-menu button.danger{color:var(--exp);border-top:1px solid var(--line);border-radius:0 0 8px 8px;margin-top:2px;padding-top:10px}
+
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--line);color:var(--tx);padding:10px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
 .toast.show{opacity:1}.toast.ok{color:var(--inc)}.toast.bad{color:var(--exp)}
 .tools{display:flex;gap:6px}
 .errbar{background:var(--card);border:1px solid var(--exp);color:var(--exp);border-radius:10px;padding:8px 12px;margin:8px 0;font-weight:600}
 .errbar[hidden]{display:none}
 :root[data-theme="light"]{color-scheme:light;--bg:#eef1f0;--card:#ffffff;--line:#cdd7d4;--tx:#1f2b2d;--mut:#5b6b68;--inc:#1d7a66;--exp:#b04545;--net:#8a6500;--btn:#3e6b66}
+:root[data-theme="light"] .ops-tbl th{background:rgba(0,0,0,.04)}
 </style>
 </head>
 <body>
 <main>
-<div class="top"><h1 data-i="title"></h1><div class="tools"><button class="lang" id="theme"></button><button class="lang" id="lang"></button></div></div>
+<div class="top">
+  <h1><span data-i="title"></span><span class="ver-badge">v1.0</span></h1>
+  <div class="tools"><button class="lang" id="theme" type="button"></button><button class="lang" id="lang" type="button"></button></div>
+</div>
 <div id="saveErr" class="errbar" role="alert" hidden></div>
 
 <div class="trucks">
   <select id="truck" aria-label="truck"></select>
   <input id="newTruck" type="text" maxlength="30">
-  <button class="go" id="addTruck" data-i="add"></button>
+  <button class="go" id="addTruck" type="button" data-i="add"></button>
 </div>
 <div class="trucks">
-  <button class="lang" id="renTruck" data-i="ren"></button>
-  <button class="lang" id="delTruck" data-i="delT"></button>
+  <button class="lang" id="renTruck" type="button" data-i="ren"></button>
+  <button class="lang" id="delTruck" type="button" data-i="delT"></button>
   <label for="currency" data-i="curl" style="align-self:center"></label>
   <select id="currency"></select>
 </div>
@@ -87,7 +140,9 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 </section>
 
 <div class="tabs" id="tabs">
-  <button data-p="day" class="on" data-i="day"></button><button data-p="month" data-i="month"></button><button data-p="season" data-i="season"></button>
+  <button type="button" data-p="day" class="on" data-i="day"></button>
+  <button type="button" data-p="month" data-i="month"></button>
+  <button type="button" data-p="season" data-i="season"></button>
 </div>
 <div class="sum">
   <div><b class="inc" id="sInc">0</b><span data-i="inc"></span></div>
@@ -96,17 +151,36 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 </div>
 <small class="stat" id="stat"></small>
 
+<section class="smart-box" aria-label="smart-summary">
+  <div class="smart-head">
+    <span data-i="smartTitle"></span>
+    <span id="smartPeriod"></span>
+  </div>
+  <div class="smart-row">
+    <span data-i="totInc"></span>
+    <b class="inc" id="smInc">0</b>
+  </div>
+  <div class="smart-row">
+    <span data-i="totExp"></span>
+    <b class="exp" id="smExp">0</b>
+  </div>
+  <div class="smart-res even" id="smResBox">
+    <span id="smResLbl"></span>
+    <span id="smResVal">0</span>
+  </div>
+</section>
+
 <h2 data-i="addTrips"></h2>
 <form id="fTrip" novalidate>
   <div class="row">
     <label><span data-i="date"></span><input type="date" id="tDate" required></label>
-    <label><span data-i="count"></span><input type="number" id="tCount" value="1" min="1" required></label>
+    <label><span data-i="count"></span><input type="number" id="tCount" min="1" required></label>
   </div>
   <div class="row">
     <label><span data-i="from"></span><input type="text" id="tFrom" maxlength="30" list="places" autocomplete="off"></label>
     <label><span data-i="to"></span><input type="text" id="tTo" maxlength="30" list="places" autocomplete="off"></label>
   </div>
-  <label><span data-i="price"></span><input type="number" step="any" id="tPrice" value="800" min="0" required></label>
+  <label><span data-i="price"></span><input type="number" step="any" id="tPrice" min="0" required></label>
   <label><span data-i="note"></span><input type="text" id="tNote" maxlength="60"></label>
   <button class="go" type="submit" data-i="save"></button>
 </form>
@@ -117,7 +191,7 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
     <label><span data-i="date"></span><input type="date" id="eDate" required></label>
     <label><span data-i="type"></span><select id="eType"></select></label>
   </div>
-  <label><span data-i="amount"></span><input type="number" step="any" id="eAmt" value="200" min="0" required></label>
+  <label><span data-i="amount"></span><input type="number" step="any" id="eAmt" min="0" required></label>
   <label><span data-i="note"></span><input type="text" id="eNote" maxlength="60"></label>
   <button class="go" type="submit" data-i="save"></button>
 </form>
@@ -134,14 +208,43 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 </form>
 
 <h2 data-i="recent"></h2>
-<ul id="list"></ul>
+<div class="filters">
+  <div class="f-btns" id="opFilters">
+    <button type="button" data-f="all" class="on" data-i="fAll"></button>
+    <button type="button" data-f="trip" data-i="fTrips"></button>
+    <button type="button" data-f="exp" data-i="fExps"></button>
+  </div>
+  <div class="f-date">
+    <input type="date" id="fDate" aria-label="filter-date">
+    <button type="button" class="f-clr" id="fDateClr" hidden>×</button>
+  </div>
+</div>
+<div class="tbl-wrap">
+  <table class="ops-tbl">
+    <thead>
+      <tr>
+        <th data-i="colDate"></th>
+        <th data-i="colDesc"></th>
+        <th data-i="colType"></th>
+        <th data-i="colAmt"></th>
+        <th data-i="colAct"></th>
+      </tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
+</div>
 
-<div class="foot">
-  <button id="copy"></button>
-  <button id="share" data-i="share"></button>
-  <button id="backup" data-i="backup"></button>
-  <button id="restore" data-i="restore"></button>
-  <button id="reset" data-i="reset"></button>
+<div class="settings-wrap" id="settingsWrap">
+  <button type="button" class="set-btn" id="settingsBtn" aria-expanded="false" aria-controls="settingsMenu">
+    <span>⚙️</span><span data-i="settings"></span>
+  </button>
+  <div class="set-menu" id="settingsMenu" hidden>
+    <button type="button" id="copy"></button>
+    <button type="button" id="share" data-i="share"></button>
+    <button type="button" id="backup" data-i="backup"></button>
+    <button type="button" id="restore" data-i="restore"></button>
+    <button type="button" id="reset" class="danger" data-i="reset"></button>
+  </div>
 </div>
 <input type="file" id="impFile" accept="application/json,.json" hidden>
 </main>
@@ -150,22 +253,46 @@ li .ok{border:1px solid var(--line);border-radius:8px;color:var(--inc)}
 
 <script>
 (function(){
-var KEY='truck-tracker-v2',OLD='truck-tracker-v1',U=1000,MAXFILE=5*1024*1024,period='day';
+var KEY='truck-tracker-v2',OLD='truck-tracker-v1',MIG_KEY='truck-tracker-v1.0.1-clean',U=1000,MAXFILE=5*1024*1024,period='day',opFilter='all',opDate='';
 var D={
-ar:{title:'دفتر الشاحنة',seasonNet:'صافي الموسم حتى اليوم',goal:'هدفك للعودة',noGoal:'اكتب هدفك لتشوف النسبة',goalTxt:'% من الهدف، باقي ',day:'اليوم',month:'الشهر',season:'الموسم',inc:'الدخل',exp:'المصاريف',netl:'الصافي',addTrips:'سجّل رحلات',date:'التاريخ',count:'عدد الرحلات',price:'أجرة الرحلة',save:'حفظ',addExp:'سجّل مصروف',type:'النوع',amount:'المبلغ',maint:'تذكير الصيانة',mName:'الاسم',every:'كل كم يوم',last:'آخر مرة',addMaint:'إضافة تذكير',done:'تم اليوم',inn:'باقي ',late:'متأخر ',days:' يوم',recent:'آخر العمليات',none:'ما فيه عمليات بعد. سجّل أول رحلة.',noM:'ما فيه تذكيرات. أضف تغيير الزيت مثلاً.',copy:'نسخ الملخص',copied:'تم النسخ',reset:'مسح بيانات هذه الشاحنة',confirm:'تمسح بيانات هذه الشاحنة؟',add:'إضافة شاحنة',nt:'اسم شاحنة جديدة',trip:' رحلة × ',del:'حذف',t_fuel:'نافطة',t_food:'أكل وشرب',t_oil:'زيت',t_tires:'عجلات',t_repair:'عطل وإصلاح',t_other:'أخرى',def:'شاحنتي',oil:'تغيير الزيت',sum:'دخل: ',sum2:' | مصاريف: ',sum3:' | صافي: ',curl:'العملة',m_ok:'تم الحفظ ✓',m_bad:'تأكد من التاريخ والأرقام',
+ar:{title:'دفتر الشاحنة',seasonNet:'صافي الموسم حتى اليوم',goal:'هدفك للعودة',noGoal:'اكتب هدفك لتشوف النسبة',goalTxt:'% من الهدف، باقي ',day:'اليوم',month:'الشهر',season:'الموسم',inc:'الدخل',exp:'المصاريف',netl:'الصافي',smartTitle:'الملخص المالي الذكي',totInc:'إجمالي الدخل',totExp:'إجمالي المصروفات',netProfit:'صافي الربح',netLoss:'صافي الخسارة',netEven:'متعادل (لا ربح ولا خسارة)',addTrips:'سجّل رحلات',date:'التاريخ',count:'عدد الرحلات',price:'أجرة الرحلة',save:'حفظ',addExp:'سجّل مصروف',type:'النوع',amount:'المبلغ',maint:'تذكير الصيانة',mName:'الاسم',every:'كل كم يوم',last:'آخر مرة',addMaint:'إضافة تذكير',done:'تم اليوم',inn:'باقي ',late:'متأخر ',days:' يوم',recent:'آخر العمليات',fAll:'جميع العمليات',fTrips:'الرحلات',fExps:'المصروفات',colDate:'التاريخ',colDesc:'البيان',colType:'النوع',colAmt:'المبلغ',colAct:'الإجراء',typeTrip:'دخل',typeExp:'مصروف',none:'ما فيه عمليات مطابقة حالياً.',noM:'ما فيه تذكيرات. أضف تغيير الزيت مثلاً.',settings:'الإعدادات',copy:'نسخ الملخص',copied:'تم النسخ',reset:'تصفير بيانات التطبيق',confirm:'تحذير: سيتم حذف جميع الرحلات والمصروفات والصيانة وتصفير البيانات بالكامل. هل أنت متأكد؟',confirm2:'تأكيد أخير: لا يمكن التراجع بعد التصفير (سيتم حفظ نسخة احتياطية داخلية). متابعة؟',m_reset:'تم تصفير بيانات التطبيق ✓',add:'إضافة شاحنة',nt:'اسم شاحنة جديدة',trip:' رحلة × ',del:'حذف',t_fuel:'نافطة',t_food:'أكل وشرب',t_oil:'زيت',t_tires:'عجلات',t_repair:'عطل وإصلاح',t_other:'أخرى',def:'شاحنتي',oil:'تغيير الزيت',sum:'دخل: ',sum2:' | مصاريف: ',sum3:' | صافي: ',curl:'العملة',m_ok:'تم الحفظ ✓',m_bad:'تأكد من التاريخ والأرقام',
  ren:'تغيير اسم الشاحنة',renP:'الاسم الجديد للشاحنة:',delT:'حذف الشاحنة',delTc:'تحذف هذه الشاحنة وكل بياناتها نهائياً؟',m_last:'لازم تبقى شاحنة واحدة على الأقل',note:'ملاحظة (اختياري)',delc:'تحذف هذه العملية؟',share:'مشاركة واتساب',backup:'حفظ نسخة احتياطية',restore:'استرجاع نسخة',restoreC:'الاسترجاع يستبدل كل البيانات الحالية. تكمل؟',m_imp:'تم الاسترجاع ✓',m_impbad:'الملف غير صالح أو تالف، ولم يتغيّر شي من بياناتك',from:'من',to:'إلى',trips:'عدد الرحلات: ',avg:' | متوسط الرحلة: ',theme:'تبديل الوضع (ليلي / نهاري)',saveFail:'تعذّر حفظ البيانات! المساحة ممتلئة أو التخزين معطّل. احفظ نسخة احتياطية الآن.',m_savefail:'تعذّر حفظ البيانات',corrupt:'تعذّر قراءة البيانات المحفوظة. تم الاحتفاظ بنسخة منها ولم تُحذف.',rfile:'محتوى الملف: ',rc1:' شاحنة، ',rc2:' عملية'},
-fr:{title:'Carnet du camion',seasonNet:'Net de la saison à ce jour',goal:'Objectif pour rentrer',noGoal:'Entrez votre objectif',goalTxt:'% de l’objectif, reste ',day:'Jour',month:'Mois',season:'Saison',inc:'Revenus',exp:'Dépenses',netl:'Net',addTrips:'Ajouter des trajets',date:'Date',count:'Nombre de trajets',price:'Prix du trajet',save:'Enregistrer',addExp:'Ajouter une dépense',type:'Type',amount:'Montant',maint:'Rappels d’entretien',mName:'Nom',every:'Tous les (jours)',last:'Dernière fois',addMaint:'Ajouter un rappel',done:'Fait aujourd’hui',inn:'Dans ',late:'En retard de ',days:' j',recent:'Dernières opérations',none:'Aucune opération. Ajoutez un premier trajet.',noM:'Aucun rappel. Ajoutez la vidange par exemple.',copy:'Copier le résumé',copied:'Copié',reset:'Effacer les données de ce camion',confirm:'Effacer les données de ce camion ?',add:'Ajouter un camion',nt:'Nom du nouveau camion',trip:' trajets × ',del:'Supprimer',t_fuel:'Gasoil',t_food:'Repas',t_oil:'Huile',t_tires:'Pneus',t_repair:'Panne et réparation',t_other:'Autre',def:'Mon camion',oil:'Vidange',sum:'Revenus : ',sum2:' | Dépenses : ',sum3:' | Net : ',curl:'Devise',m_ok:'Enregistré ✓',m_bad:'Vérifiez la date et les nombres',
+fr:{title:'Carnet du camion',seasonNet:'Net de la saison à ce jour',goal:'Objectif pour rentrer',noGoal:'Entrez votre objectif',goalTxt:'% de l’objectif, reste ',day:'Jour',month:'Mois',season:'Saison',inc:'Revenus',exp:'Dépenses',netl:'Net',smartTitle:'Résumé financier intelligent',totInc:'Total des revenus',totExp:'Total des dépenses',netProfit:'Bénéfice net',netLoss:'Perte nette',netEven:'Équilibre (0)',addTrips:'Ajouter des trajets',date:'Date',count:'Nombre de trajets',price:'Prix du trajet',save:'Enregistrer',addExp:'Ajouter une dépense',type:'Type',amount:'Montant',maint:'Rappels d’entretien',mName:'Nom',every:'Tous les (jours)',last:'Dernière fois',addMaint:'Ajouter un rappel',done:'Fait aujourd’hui',inn:'Dans ',late:'En retard de ',days:' j',recent:'Dernières opérations',fAll:'Toutes',fTrips:'Trajets',fExps:'Dépenses',colDate:'Date',colDesc:'Détail',colType:'Type',colAmt:'Montant',colAct:'Action',typeTrip:'Revenu',typeExp:'Dépense',none:'Aucune opération correspondante.',noM:'Aucun rappel. Ajoutez la vidange par exemple.',settings:'Paramètres',copy:'Copier le résumé',copied:'Copié',reset:'Réinitialiser les données',confirm:'Attention : toutes les opérations, dépenses et entretiens seront effacés. Continuer ?',confirm2:'Dernière confirmation : réinitialiser toutes les données de l’application ?',m_reset:'Données réinitialisées ✓',add:'Ajouter un camion',nt:'Nom du nouveau camion',trip:' trajets × ',del:'Supprimer',t_fuel:'Gasoil',t_food:'Repas',t_oil:'Huile',t_tires:'Pneus',t_repair:'Panne et réparation',t_other:'Autre',def:'Mon camion',oil:'Vidange',sum:'Revenus : ',sum2:' | Dépenses : ',sum3:' | Net : ',curl:'Devise',m_ok:'Enregistré ✓',m_bad:'Vérifiez la date et les nombres',
  ren:'Renommer le camion',renP:'Nouveau nom du camion :',delT:'Supprimer le camion',delTc:'Supprimer ce camion et toutes ses données ?',m_last:'Gardez au moins un camion',note:'Note (facultatif)',delc:'Supprimer cette opération ?',share:'Partager sur WhatsApp',backup:'Sauvegarder les données',restore:'Restaurer une sauvegarde',restoreC:'La restauration remplace toutes les données actuelles. Continuer ?',m_imp:'Restauré ✓',m_impbad:'Fichier invalide ou corrompu, vos données n’ont pas été modifiées',from:'De',to:'Vers',trips:'Trajets : ',avg:' | Moyenne : ',theme:'Basculer le mode (nuit / jour)',saveFail:'Échec de l’enregistrement ! Espace plein ou stockage désactivé. Faites une sauvegarde maintenant.',m_savefail:'Échec de l’enregistrement',corrupt:'Impossible de lire les données enregistrées. Une copie a été conservée, rien n’a été supprimé.',rfile:'Contenu du fichier : ',rc1:' camion(s), ',rc2:' opération(s)'}
 };
-var CURS={LYD:{ar:'دينار ليبي',s:{ar:'د.ل',fr:'LYD'}},XAF:{ar:'فرنك سيفا (تشاد)',s:{ar:'فرنك سيفا',fr:'FCFA'}},USD:{ar:'دولار',s:{ar:'$',fr:'USD'}},EUR:{ar:'يورو',s:{ar:'€',fr:'EUR'}},EGP:{ar:'جنيه مصري',s:{ar:'ج.م',fr:'EGP'}},SDG:{ar:'جنيه سوداني',s:{ar:'ج.س',fr:'SDG'}},NGN:{ar:'نايرا',s:{ar:'₦',fr:'NGN'}},DZD:{ar:'دينار جزائري',s:{ar:'د.ج',fr:'DZD'}},TND:{ar:'دينار تونسي',s:{ar:'د.ت',fr:'TND'}}};
+/* العملات الخمس المعتمدة للعرض للمستخدم */
+var CURS={
+  LYD:{ar:'دينار ليبي',s:{ar:'د.ل',fr:'LYD'}},
+  XAF:{ar:'فرنك إفريقي',s:{ar:'FCFA',fr:'FCFA'}},
+  EGP:{ar:'جنيه مصري',s:{ar:'ج.م',fr:'EGP'}},
+  TND:{ar:'دينار تونسي',s:{ar:'د.ت',fr:'TND'}},
+  SDG:{ar:'جنيه سوداني',s:{ar:'ج.س',fr:'SDG'}}
+};
+/* دعم العملات القديمة داخلياً لاستعادة النسخ الاحتياطية السابقة دون فقدان البيانات */
+var LEGACY_CURS={
+  USD:{ar:'دولار',s:{ar:'$',fr:'USD'}},
+  EUR:{ar:'يورو',s:{ar:'€',fr:'EUR'}},
+  NGN:{ar:'نايرا',s:{ar:'₦',fr:'NGN'}},
+  DZD:{ar:'دينار جزائري',s:{ar:'د.ج',fr:'DZD'}}
+};
 var TYPES=['fuel','food','oil','tires','repair','other'],OLDMAP={'بنزين':'fuel','ديزل':'fuel','نافطة':'fuel','أكل وشرب':'food','زيت':'oil','عجلات':'tires','عطل وإصلاح':'repair','أخرى':'other'};
 var S={lang:'ar',theme:'dark',trucks:[],cur:null,entries:[],maint:[]};
-var lastToday='',lastId=0,saveFailed=false,corruptNote=false;
+var lastToday='',lastId=0,saveFailed=false,corruptNote=false,priceAutoSet=false;
+
 function $(i){return document.getElementById(i);}
 function has(o,k){return Object.prototype.hasOwnProperty.call(o,k);}
+function isKnownCur(c){return has(CURS,c)||has(LEGACY_CURS,c);}
 function curTruck(){return S.trucks.filter(function(x){return x.id===S.cur;})[0];}
-function curCode(){var t=curTruck();return (t&&t.currency&&has(CURS,t.currency))?t.currency:'LYD';}
-function T(k){if(k==='cur')return ' '+CURS[curCode()].s[S.lang];return D[S.lang][k]||k;}
+function curCode(){var t=curTruck();return (t&&t.currency&&isKnownCur(t.currency))?t.currency:'LYD';}
+function T(k){
+  if(k==='cur'){
+    var cc=curCode();
+    if(has(CURS,cc))return ' '+CURS[cc].s[S.lang];
+    if(has(LEGACY_CURS,cc))return ' '+LEGACY_CURS[cc].s[S.lang];
+    return ' '+CURS.LYD.s[S.lang];
+  }
+  return D[S.lang][k]||k;
+}
 /* الحسابات تتم بوحدات صحيحة (ألف جزء من الوحدة) لتجنب أخطاء الفاصلة العائمة */
 function mv(e){var v=e.kind==='trip'?Number(e.count)*Number(e.price):Number(e.amount);return isFinite(v)?Math.round(v*U):0;}
 /* عزل اتجاه الرقم السالب حتى تبقى علامة الناقص قبل الرقم في الواجهة العربية */
@@ -192,27 +319,56 @@ function normalize(){
   if(!Array.isArray(S.trucks))S.trucks=[];
   if(!Array.isArray(S.entries))S.entries=[];
   if(!Array.isArray(S.maint))S.maint=[];
-  if(!S.trucks.length){S.trucks=[{id:uid(),name:'',goal:0}];}
+  if(!S.trucks.length){S.trucks=[{id:uid(),name:'',goal:0,currency:'LYD'}];}
   var legacy=Number(S.goal)>0?Number(S.goal):0;
   S.trucks.forEach(function(t){
     if(t.goal===undefined||t.goal===null)t.goal=legacy;
     else{t.goal=Number(t.goal);if(!isFinite(t.goal)||t.goal<0)t.goal=0;}
+    if(!t.currency||!isKnownCur(t.currency))t.currency='LYD';
   });
   delete S.goal;
   if(!S.trucks.some(function(t){return t.id===S.cur;}))S.cur=S.trucks[0].id;
+}
+/* ترحيل وتصفير البيانات القديمة مرة واحدة فقط عند الانتقال إلى الإصدار 1.0 */
+function migrateToV1Once(){
+  try{
+    if(localStorage.getItem(MIG_KEY)==='1')return;
+    var keepLang=S.lang==='fr'?'fr':'ar';
+    var keepTheme=S.theme==='light'?'light':'dark';
+    var keepCur=(S.trucks&&S.trucks[0]&&has(CURS,S.trucks[0].currency))?S.trucks[0].currency:'LYD';
+    var freshId=uid();
+    S={
+      lang:keepLang,
+      theme:keepTheme,
+      trucks:[{id:freshId,name:'',goal:0,currency:keepCur}],
+      cur:freshId,
+      entries:[],
+      maint:[]
+    };
+    normalize();
+    if(save()){
+      try{localStorage.setItem(MIG_KEY,'1');}catch(e){}
+    }
+  }catch(e){}
 }
 function load(){
   var raw=null;
   try{raw=localStorage.getItem(KEY);}catch(e){}
   if(raw){
-    try{var d=JSON.parse(raw);if(d&&typeof d==='object'&&Array.isArray(d.trucks)){S=d;normalize();return;}}catch(e){}
+    try{
+      var d=JSON.parse(raw);
+      if(d&&typeof d==='object'&&Array.isArray(d.trucks)){
+        S=d;normalize();migrateToV1Once();return;
+      }
+    }catch(e){}
     try{localStorage.setItem(KEY+'-corrupt',raw);}catch(e){}
     corruptNote=true;
   }
-  var id=uid();S.trucks=[{id:id,name:'',goal:0}];S.cur=id;
+  var id=uid();S.trucks=[{id:id,name:'',goal:0,currency:'LYD'}];S.cur=id;
   try{var o=JSON.parse(localStorage.getItem(OLD)||'null');
     if(o&&o.entries){S.goal=o.goal||0;S.entries=o.entries.map(function(e){e.truck=id;if(e.kind==='exp')e.type=OLDMAP[e.type]||'other';return e;});}}catch(e){}
   normalize();
+  migrateToV1Once();
 }
 function isDateStr(s){
   if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;
@@ -235,7 +391,7 @@ function validateBackup(d){
       t=d.trucks[i];
       if(!t||typeof t!=='object'||!isNum(t.id)||tids[t.id])return null;
       if(t.name!==undefined&&typeof t.name!=='string')return null;
-      if(t.currency!==undefined&&(typeof t.currency!=='string'||!has(CURS,t.currency)))return null;
+      if(t.currency!==undefined&&(typeof t.currency!=='string'||!isKnownCur(t.currency)))return null;
       var nt={id:t.id,name:cleanStr(t.name,30)};
       if(t.currency!==undefined)nt.currency=t.currency;
       if(t.goal!==undefined&&t.goal!==null){if(!isNum(t.goal)||t.goal<0||t.goal>1e12)return null;nt.goal=t.goal;}
@@ -284,19 +440,31 @@ function mine(){return S.entries.filter(function(e){return e.truck===S.cur;});}
 function inPeriod(e){var t=today();return period==='season'||(period==='day'?e.date===t:e.date.slice(0,7)===t.slice(0,7));}
 function dayNum(s){return Math.round(new Date(s+'T00:00:00').getTime()/86400000);}
 function tname(t){return t.name||T('def');}
-var tt;function toast(k){var m=$('msg');m.textContent=T('m_'+k);m.className='toast show '+(k==='ok'||k==='imp'?'ok':'bad');clearTimeout(tt);tt=setTimeout(function(){m.className='toast';},k==='savefail'?5000:2200);}
+var tt;function toast(k){var m=$('msg');m.textContent=T('m_'+k);m.className='toast show '+((k==='ok'||k==='imp'||k==='reset')?'ok':'bad');clearTimeout(tt);tt=setTimeout(function(){m.className='toast';},k==='savefail'?5000:2200);}
 function mk(tag,txt,cls){var e=document.createElement(tag);if(txt!=null)e.textContent=txt;if(cls)e.className=cls;return e;}
 function setDates(){lastToday=today();$('tDate').value=$('eDate').value=$('mLast').value=lastToday;}
 function routeTxt(e){
   if(e.kind!=='trip'||(!e.from&&!e.to))return '';
-  return ' · '+(e.from?T('from')+' '+e.from:'')+(e.from&&e.to?' ':'')+(e.to?T('to')+' '+e.to:'');
+  return (e.from?T('from')+' '+e.from:'')+(e.from&&e.to?' → ':'')+(e.to?T('to')+' '+e.to:'');
 }
+/* اقتراح السعر السابق للمسار نفسه؛ لا يستبدل سعراً كتبه المستخدم بيده، ولا يترك سعراً قديماً لمسار جديد */
 function autoPrice(){
   var f=$('tFrom').value.trim().toLowerCase(),t=$('tTo').value.trim().toLowerCase();
-  if(!f||!t)return;
+  if(!f||!t){
+    if(priceAutoSet){$('tPrice').value='';priceAutoSet=false;}
+    return;
+  }
   var m=mine().filter(function(e){return e.kind==='trip'&&(e.from||'').toLowerCase()===f&&(e.to||'').toLowerCase()===t;})
     .sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;})[0];
-  if(m)$('tPrice').value=m.price;
+  if(m){
+    if($('tPrice').value===''||priceAutoSet){
+      $('tPrice').value=m.price;
+      priceAutoSet=true;
+    }
+  }else if(priceAutoSet){
+    $('tPrice').value='';
+    priceAutoSet=false;
+  }
 }
 function summary(){return tname(curTruck())+' - '+T(period)+'\n'+T('sum')+$('sInc').textContent+T('sum2')+$('sExp').textContent+T('sum3')+$('sNet').textContent+T('cur');}
 
@@ -307,20 +475,42 @@ function render(){
   Array.prototype.forEach.call(document.querySelectorAll('[data-i]'),function(e){e.textContent=T(e.dataset.i);});
   $('lang').textContent=S.lang==='ar'?'Français':'العربية';
   $('theme').textContent=S.theme==='light'?'🌙':'☀️';$('theme').setAttribute('aria-label',T('theme'));$('theme').title=T('theme');
-  $('newTruck').placeholder=T('nt');$('copy').textContent=T('copy');
+  $('newTruck').placeholder=T('nt');$('copy').textContent='📋 '+T('copy');
   document.title=T('title');
   showBanner();
+
   var sel=$('truck');sel.innerHTML='';
   S.trucks.forEach(function(t){var o=mk('option',tname(t));o.value=t.id;if(t.id===S.cur)o.selected=true;sel.appendChild(o);});
-  var cs=$('currency');cs.innerHTML='';Object.keys(CURS).forEach(function(k){var o=mk('option',S.lang==='ar'?CURS[k].ar+' ('+CURS[k].s.ar+')':CURS[k].s.fr);o.value=k;if(k===curCode())o.selected=true;cs.appendChild(o);});
+
+  var cs=$('currency'),cc=curCode();cs.innerHTML='';
+  Object.keys(CURS).forEach(function(k){
+    var o=mk('option',S.lang==='ar'?CURS[k].ar+' ('+CURS[k].s.ar+')':CURS[k].s.fr);
+    o.value=k;if(k===cc)o.selected=true;cs.appendChild(o);
+  });
+  if(!has(CURS,cc)&&has(LEGACY_CURS,cc)){
+    var lo=mk('option',S.lang==='ar'?LEGACY_CURS[cc].ar+' ('+LEGACY_CURS[cc].s.ar+')':LEGACY_CURS[cc].s.fr);
+    lo.value=cc;lo.selected=true;cs.appendChild(lo);
+  }
+
   var et=$('eType'),cv=et.value;et.innerHTML='';
   TYPES.forEach(function(k){var o=mk('option',T('t_'+k));o.value=k;et.appendChild(o);});if(cv)et.value=cv;
   if(!$('mName').value)$('mName').value=T('oil');
 
   var inc=0,exp=0,sI=0,sE=0,trips=0,es=mine();
   es.forEach(function(e){var v=mv(e);if(e.kind==='trip')sI+=v;else sE+=v;if(inPeriod(e)){if(e.kind==='trip'){inc+=v;trips+=Number(e.count)||0;}else exp+=v;}});
-  $('sInc').textContent=fmtM(inc);$('sExp').textContent=fmtM(exp);$('sNet').textContent=fmtM(inc-exp);
+  var pNet=inc-exp;
+  $('sInc').textContent=fmtM(inc);$('sExp').textContent=fmtM(exp);$('sNet').textContent=fmtM(pNet);
   $('stat').textContent=trips>0?T('trips')+trips+T('avg')+fmtM(Math.round(inc/trips))+T('cur'):'';
+
+  /* تحديث الملخص المالي الذكي */
+  $('smartPeriod').textContent=T(period);
+  $('smInc').textContent=fmtM(inc)+T('cur');
+  $('smExp').textContent=fmtM(exp)+T('cur');
+  var resBox=$('smResBox'),resLbl=$('smResLbl'),resVal=$('smResVal');
+  resBox.className='smart-res '+(pNet>0?'profit':(pNet<0?'loss':'even'));
+  resLbl.textContent=pNet>0?T('netProfit'):(pNet<0?T('netLoss'):T('netEven'));
+  resVal.textContent=fmtM(pNet)+T('cur');
+
   var net=sI-sE;$('seasonNet').textContent=fmtM(net)+T('cur');
   var ct=curTruck(),g=Number(ct&&ct.goal)||0,gm=Math.round(g*U);$('goal').value=g||'';
   if(gm>0){var p=Math.max(0,Math.min(100,net/gm*100));$('prog').style.width=p+'%';$('progTxt').textContent=Math.round(p)+T('goalTxt')+fmtM(Math.max(0,gm-net))+T('cur');}
@@ -336,22 +526,58 @@ function render(){
     var left=dayNum(m.last)+Number(m.days)-dayNum(today());
     var li=mk('li'),d=mk('div'),b=mk('b',m.name),s=mk('small',left>=0?T('inn')+left+T('days'):T('late')+(-left)+T('days'),left<0?'late':(left<=5?'warn':''));
     d.appendChild(b);d.appendChild(s);
-    var ok=mk('button',T('done'),'ok');ok.onclick=function(){m.last=today();save();render();};
-    var x=mk('button','×');x.setAttribute('aria-label',T('del'));x.onclick=function(){if(!confirm(T('delc')))return;S.maint=S.maint.filter(function(y){return y.id!==m.id;});save();render();};
+    var ok=mk('button',T('done'),'ok');ok.type='button';ok.onclick=function(){m.last=today();save();render();};
+    var x=mk('button','×');x.type='button';x.setAttribute('aria-label',T('del'));x.onclick=function(){if(!confirm(T('delc')))return;S.maint=S.maint.filter(function(y){return y.id!==m.id;});save();render();};
     li.appendChild(d);li.appendChild(ok);li.appendChild(x);ml.appendChild(li);
   });
 
-  var ul=$('list');ul.innerHTML='';
-  var sorted=es.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;}).slice(0,30);
-  if(!sorted.length)ul.appendChild(mk('li',T('none'),'empty'));
-  sorted.forEach(function(e){
-    var li=mk('li'),d=mk('div'),b=mk('b',e.kind==='trip'?e.count+T('trip')+fmtN(e.price)+T('cur'):T('t_'+e.type)),sm=mk('small',e.date+routeTxt(e)+(e.note?' · '+e.note:''));
-    d.appendChild(b);d.appendChild(sm);
-    var a=mk('span',iso((e.kind==='trip'?'+':'-')+fmtM(mv(e))),e.kind==='trip'?'inc':'exp');
-    var x=mk('button','×');x.setAttribute('aria-label',T('del'));
-    x.onclick=function(){if(!confirm(T('delc')))return;S.entries=S.entries.filter(function(y){return y.id!==e.id;});save();render();};
-    li.appendChild(d);li.appendChild(a);li.appendChild(x);ul.appendChild(li);
+  /* عرض جدول آخر العمليات مع الفلاتر */
+  var tbody=$('list');tbody.innerHTML='';
+  var filtered=es.filter(function(e){
+    if(opFilter!=='all'&&e.kind!==opFilter)return false;
+    if(opDate&&e.date!==opDate)return false;
+    return true;
   });
+  var sorted=filtered.slice().sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id;});
+  if(!opDate&&opFilter==='all')sorted=sorted.slice(0,50);
+  if(!sorted.length){
+    var tr0=document.createElement('tr'),td0=mk('td',T('none'),'tbl-empty');
+    td0.colSpan=5;tr0.appendChild(td0);tbody.appendChild(tr0);
+  }else{
+    sorted.forEach(function(e){
+      var tr=document.createElement('tr');
+      var tdDate=mk('td',e.date,'c-date');
+      var tdDesc=mk('td',null,'c-desc');
+      var titleTxt=e.kind==='trip'?(e.count+T('trip')+fmtN(e.price)+T('cur')):T('t_'+e.type);
+      tdDesc.appendChild(mk('b',titleTxt));
+      var subParts=[];
+      var rt=routeTxt(e);if(rt)subParts.push(rt);
+      if(e.note)subParts.push(e.note);
+      if(subParts.length)tdDesc.appendChild(mk('small',subParts.join(' · ')));
+
+      var tdType=mk('td',null,'c-type');
+      tdType.appendChild(mk('span',e.kind==='trip'?T('typeTrip'):T('typeExp'),'badge '+(e.kind==='trip'?'b-inc':'b-exp')));
+
+      var amtStr=iso((e.kind==='trip'?'+':'-')+fmtM(mv(e))+T('cur'));
+      var tdAmt=mk('td',amtStr,'c-amt '+(e.kind==='trip'?'inc':'exp'));
+
+      var tdAct=mk('td',null,'c-act');
+      var x=mk('button','×','del-op');x.type='button';x.setAttribute('aria-label',T('del'));x.title=T('del');
+      x.onclick=function(){
+        if(!confirm(T('delc')))return;
+        S.entries=S.entries.filter(function(y){return y.id!==e.id;});
+        save();render();
+      };
+      tdAct.appendChild(x);
+
+      tr.appendChild(tdDate);
+      tr.appendChild(tdDesc);
+      tr.appendChild(tdType);
+      tr.appendChild(tdAmt);
+      tr.appendChild(tdAct);
+      tbody.appendChild(tr);
+    });
+  }
 }
 
 setDates();
@@ -362,8 +588,8 @@ window.addEventListener('storage',function(ev){
 });
 $('lang').onclick=function(){S.lang=S.lang==='ar'?'fr':'ar';$('mName').value='';save();render();};
 $('theme').onclick=function(){S.theme=S.theme==='light'?'dark':'light';save();render();};
-$('truck').onchange=function(){S.cur=Number(this.value);save();render();};
-$('addTruck').onclick=function(){var n=$('newTruck').value.trim().slice(0,30);if(!n)return;var id=uid();S.trucks.push({id:id,name:n,goal:0});S.cur=id;$('newTruck').value='';save();render();};
+$('truck').onchange=function(){S.cur=Number(this.value);priceAutoSet=false;$('tPrice').value='';save();render();};
+$('addTruck').onclick=function(){var n=$('newTruck').value.trim().slice(0,30);if(!n)return;var id=uid();S.trucks.push({id:id,name:n,goal:0,currency:curCode()});S.cur=id;$('newTruck').value='';save();render();};
 $('renTruck').onclick=function(){var t=curTruck();var n=prompt(T('renP'),t.name||'');if(n===null)return;t.name=n.trim().slice(0,30);save();render();};
 $('delTruck').onclick=function(){
   if(S.trucks.length<=1){toast('last');return;}
@@ -374,38 +600,118 @@ $('delTruck').onclick=function(){
   S.maint=S.maint.filter(function(m){return m.truck!==id;});
   S.cur=S.trucks[0].id;save();render();
 };
-$('tFrom').addEventListener('input',autoPrice);$('tTo').addEventListener('input',autoPrice);
+
+$('tFrom').addEventListener('input',autoPrice);
+$('tTo').addEventListener('input',autoPrice);
+$('tPrice').addEventListener('input',function(){priceAutoSet=false;});
+
 $('fTrip').onsubmit=function(ev){
   ev.preventDefault();
   var c=Number($('tCount').value),p=Number($('tPrice').value);
   if(!isDateStr($('tDate').value)||!(Number.isInteger(c)&&c>=1&&c<=100000)||$('tPrice').value===''||!(isFinite(p)&&p>=0&&p<=1e12)){toast('bad');return;}
   S.entries.push({id:uid(),truck:S.cur,kind:'trip',date:$('tDate').value,count:c,price:p,from:$('tFrom').value.trim().slice(0,30),to:$('tTo').value.trim().slice(0,30),note:$('tNote').value.trim().slice(0,60)});
-  $('tCount').value=1;$('tNote').value='';var ok=save();render();if(ok)toast('ok');
+  /* تصفير جميع خانات الرحلة بعد الحفظ */
+  $('tCount').value='';
+  $('tFrom').value='';
+  $('tTo').value='';
+  $('tPrice').value='';
+  $('tNote').value='';
+  priceAutoSet=false;
+  var ok=save();render();if(ok)toast('ok');
 };
+
 $('fExp').onsubmit=function(ev){
   ev.preventDefault();
   var a=Number($('eAmt').value);
   if(!isDateStr($('eDate').value)||$('eAmt').value===''||!(isFinite(a)&&a>=0&&a<=1e12)||TYPES.indexOf($('eType').value)<0){toast('bad');return;}
   S.entries.push({id:uid(),truck:S.cur,kind:'exp',date:$('eDate').value,type:$('eType').value,amount:a,note:$('eNote').value.trim().slice(0,60)});
-  $('eNote').value='';var ok=save();render();if(ok)toast('ok');
+  /* تصفير خانة المبلغ والملاحظة مع الإبقاء على نوع المصروف المختار */
+  $('eAmt').value='';
+  $('eNote').value='';
+  $('eType').selectedIndex=0;
+  var ok=save();render();if(ok)toast('ok');
 };
+
 $('fMaint').onsubmit=function(ev){
   ev.preventDefault();
   var n=$('mName').value.trim().slice(0,30),d=Number($('mDays').value);
   if(!n||!(Number.isInteger(d)&&d>=1&&d<=36500)||!isDateStr($('mLast').value)){toast('bad');return;}
   S.maint.push({id:uid(),truck:S.cur,name:n,days:d,last:$('mLast').value});
-  $('mName').value='';var ok=save();render();if(ok)toast('ok');
+  $('mName').value='';$('mDays').value=30;var ok=save();render();if(ok)toast('ok');
 };
+
 $('currency').onchange=function(){var c=this.value;if(!has(CURS,c))return;S.trucks.forEach(function(t){if(t.id===S.cur)t.currency=c;});save();render();};
 $('goal').onchange=function(){var t=curTruck();if(!t)return;var g=Number($('goal').value);t.goal=(isFinite(g)&&g>0)?Math.min(g,1e12):0;save();render();};
 $('tabs').onclick=function(ev){var b=ev.target.closest('button');if(!b)return;period=b.dataset.p;Array.prototype.forEach.call(this.children,function(c){c.classList.toggle('on',c===b);});render();};
-$('reset').onclick=function(){if(confirm(T('confirm'))){S.entries=S.entries.filter(function(e){return e.truck!==S.cur;});S.maint=S.maint.filter(function(m){return m.truck!==S.cur;});save();render();}};
-$('copy').onclick=function(){
-  function done(){$('copy').textContent=T('copied');setTimeout(function(){$('copy').textContent=T('copy');},1500);}
-  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(summary()).then(done).catch(function(){});}}catch(e){}
+
+/* فلاتر جدول آخر العمليات */
+$('opFilters').onclick=function(ev){
+  var b=ev.target.closest('button');if(!b)return;
+  opFilter=b.dataset.f||'all';
+  Array.prototype.forEach.call(this.children,function(c){c.classList.toggle('on',c===b);});
+  render();
 };
-$('share').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent(summary()),'_blank');};
+$('fDate').onchange=function(){
+  opDate=this.value||'';
+  $('fDateClr').hidden=!opDate;
+  render();
+};
+$('fDateClr').onclick=function(){
+  opDate='';$('fDate').value='';this.hidden=true;render();
+};
+
+/* فتح وإغلاق قائمة الإعدادات */
+function closeSettings(){
+  $('settingsMenu').hidden=true;
+  $('settingsBtn').setAttribute('aria-expanded','false');
+}
+$('settingsBtn').onclick=function(ev){
+  ev.stopPropagation();
+  var menu=$('settingsMenu');
+  var willOpen=menu.hidden;
+  menu.hidden=!willOpen;
+  this.setAttribute('aria-expanded',willOpen?'true':'false');
+};
+document.addEventListener('click',function(ev){
+  var wrap=$('settingsWrap');
+  if(wrap&&!wrap.contains(ev.target))closeSettings();
+});
+
+$('reset').onclick=function(){
+  closeSettings();
+  if(!confirm(T('confirm')))return;
+  if(!confirm(T('confirm2')))return;
+  try{localStorage.setItem(KEY+'-manual-reset-backup',JSON.stringify(S));}catch(e){}
+  var keepLang=S.lang,keepTheme=S.theme,keepCur=has(CURS,curCode())?curCode():'LYD';
+  var freshId=uid();
+  S={lang:keepLang,theme:keepTheme,trucks:[{id:freshId,name:'',goal:0,currency:keepCur}],cur:freshId,entries:[],maint:[]};
+  normalize();
+  if(save()){render();toast('reset');}
+};
+$('copy').onclick=function(){
+  function done(){$('copy').textContent='✓ '+T('copied');setTimeout(function(){$('copy').textContent='📋 '+T('copy');closeSettings();},1200);}
+  function fallback(){
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=summary();ta.setAttribute('readonly','');
+      ta.style.position='fixed';ta.style.opacity='0';ta.style.top='0';
+      document.body.appendChild(ta);ta.select();
+      var ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok)done();
+    }catch(e){}
+  }
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(summary()).then(done).catch(fallback);
+      return;
+    }
+  }catch(e){}
+  fallback();
+};
+$('share').onclick=function(){closeSettings();window.open('https://wa.me/?text='+encodeURIComponent(summary()),'_blank');};
 $('backup').onclick=function(){
+  closeSettings();
   try{
     var blob=new Blob([JSON.stringify(S)],{type:'application/json'});
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='truck-backup-'+today()+'.json';
@@ -413,7 +719,7 @@ $('backup').onclick=function(){
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }catch(e){}
 };
-$('restore').onclick=function(){$('impFile').click();};
+$('restore').onclick=function(){closeSettings();$('impFile').click();};
 $('impFile').onchange=function(){
   var f=this.files&&this.files[0];this.value='';if(!f)return;
   if(f.size>MAXFILE){toast('impbad');return;}
@@ -427,7 +733,7 @@ $('impFile').onchange=function(){
     try{localStorage.setItem(KEY+'-prev',JSON.stringify(S));}catch(e){}
     S=O;normalize();
     if(!save()){S=prevS;normalize();render();return;}
-    setDates();$('mName').value='';render();toast('imp');
+    setDates();$('mName').value='';priceAutoSet=false;$('tPrice').value='';render();toast('imp');
   };
   r.onerror=function(){toast('impbad');};
   r.readAsText(f);
